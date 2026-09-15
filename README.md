@@ -6,3 +6,4 @@
 1. Склоновано форк репозиторію.
 2. Створено гілку laba1.
 3. Згенеровано React-проєкт.
+<img width="1508" height="930" alt="image" src="https://github.com/user-attachments/assets/eed52568-27aa-4a63-b011-40f334592725" />
