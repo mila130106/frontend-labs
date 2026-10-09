@@ -1,0 +1,16 @@
+.traffic-lights {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background-color: #1f2430;
+  border-radius: 16px;
+  width: fit-content;
+}
+
+.traffic-lights--vertical {
+  flex-direction: column;
+}
+
+.traffic-lights--horizontal {
+  flex-direction: row;
+}
