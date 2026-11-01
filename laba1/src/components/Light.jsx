@@ -1,14 +1,15 @@
 import './Light.css';
 
-// Один сигнал світлофора. Колір приходить ззовні через props.
-// Light не знає, "правильний" це колір чи ні, він лише відображає отримане значення.
-function Light({ color }) {
+// Light не має власного стану: колір, ознака active і callback приходять через props.
+function Light({ color, signal, active, onSelect }) {
   return (
-    <div
-      className="light"
+    <button
+      type="button"
+      className={`light ${active ? 'light--active' : 'light--inactive'}`}
       style={{ color }}
-      role="img"
-      aria-label={`Сигнал: ${color}`}
+      aria-label={`Сигнал: ${signal}`}
+      aria-pressed={active}
+      onClick={() => onSelect(signal)}
     />
   );
 }

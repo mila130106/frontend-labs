@@ -1,3 +1,9 @@
+.traffic-lights-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .traffic-lights {
   display: flex;
   gap: 14px;

@@ -1,22 +1,11 @@
 import TrafficLights from './components/TrafficLights';
 import './App.css';
 
-function App() {
+export default function App() {
   return (
-    <main className="app">
+    <div className="app">
       <h1>Світлофор</h1>
-      <div className="demo">
-        <figure>
-          <TrafficLights orientation="vertical" />
-          <figcaption>Вертикальний</figcaption>
-        </figure>
-        <figure>
-          <TrafficLights orientation="horizontal" />
-          <figcaption>Горизонтальний</figcaption>
-        </figure>
-      </div>
-    </main>
+      <TrafficLights colors={['#ff3b30', '#ff9500', '#34c759']} />
+    </div>
   );
 }
-
-export default App;

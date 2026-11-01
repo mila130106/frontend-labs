@@ -1,0 +1,18 @@
+.stats-bar {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.stats-bar p {
+  margin: 4px 0;
+}
+
+.stats-bar button {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1f2430;
+  color: #fff;
+  cursor: pointer;
+}
