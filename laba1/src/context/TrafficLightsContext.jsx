@@ -1,59 +1,135 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { listTrafficLights, updateTrafficLightState } from "../api/trafficLightsApi";
+
+const PHASES = [
+  { signal: "red", durationMs: 4000 },
+  { signal: "yellow", durationMs: 1500 },
+  { signal: "green", durationMs: 4000 },
+  { signal: "yellow", durationMs: 1500 },
+];
+
+const SIGNAL_TO_PHASE_INDEX = {
+  red: 0,
+  yellow: 1,
+  green: 2,
+};
+
+const INITIAL_COUNTS = {
+  red: 0,
+  yellow: 0,
+  green: 0,
+};
 
 const TrafficLightsContext = createContext(null);
 
-export const CYCLE = ["red", "yellow", "green", "yellow"];
-export const MANUAL_PHASE = { red: 0, yellow: 1, green: 2 };
-export const PHASE_DURATION_MS = 2000;
-
 export function TrafficLightsProvider({ children }) {
   const [phaseIndex, setPhaseIndex] = useState(0);
-  const [counts, setCounts] = useState({ red: 0, yellow: 0, green: 0 });
+  const [counts, setCounts] = useState(INITIAL_COUNTS);
   const [orientation, setOrientation] = useState("vertical");
   const [isAutomatic, setIsAutomatic] = useState(false);
 
-  const currentSignal = CYCLE[phaseIndex];
+  const [serverTrafficLights, setServerTrafficLights] = useState([]);
+  const [loadStatus, setLoadStatus] = useState("idle");
+  const [loadError, setLoadError] = useState("");
+  const [saveStatus, setSaveStatus] = useState("idle");
+  const [saveError, setSaveError] = useState("");
+
+  const currentSignal = PHASES[phaseIndex]?.signal ?? "red";
   const totalClicks = counts.red + counts.yellow + counts.green;
+
+  const mainServerRecord =
+    serverTrafficLights.find((item) => item.id === "main") ?? null;
+  const savedServerSignal = mainServerRecord?.currentSignal ?? null;
+
+  const reloadTrafficLights = useCallback(async () => {
+    setLoadStatus("loading");
+    setLoadError("");
+
+    try {
+      const items = await listTrafficLights();
+      setServerTrafficLights(items);
+
+      const mainItem = items.find((item) => item.id === "main");
+      if (mainItem && SIGNAL_TO_PHASE_INDEX[mainItem.currentSignal] !== undefined) {
+        setPhaseIndex(SIGNAL_TO_PHASE_INDEX[mainItem.currentSignal]);
+      }
+
+      setLoadStatus("success");
+    } catch (error) {
+      setLoadStatus("error");
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : "Не вдалося завантажити збережений серверний стан."
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    reloadTrafficLights();
+  }, [reloadTrafficLights]);
 
   useEffect(() => {
     if (!isAutomatic) {
       return undefined;
     }
 
-    const timerId = setInterval(() => {
-      setPhaseIndex((previous) => (previous + 1) % CYCLE.length);
-    }, PHASE_DURATION_MS);
+    const currentDuration = PHASES[phaseIndex]?.durationMs ?? 2000;
+    const timerId = window.setTimeout(() => {
+      setPhaseIndex((prevIndex) => (prevIndex + 1) % PHASES.length);
+    }, currentDuration);
 
-    return () => clearInterval(timerId);
-  }, [isAutomatic]);
+    return () => window.clearTimeout(timerId);
+  }, [isAutomatic, phaseIndex]);
 
-  const selectSignal = (signal) => {
-    const targetPhase = MANUAL_PHASE[signal];
-    if (targetPhase === undefined) {
+  const selectSignal = useCallback((signal) => {
+    const nextPhaseIndex = SIGNAL_TO_PHASE_INDEX[signal];
+    if (nextPhaseIndex === undefined) {
       return;
     }
 
-    setIsAutomatic(false);
-    setPhaseIndex(targetPhase);
-    setCounts((previous) => ({
-      ...previous,
-      [signal]: previous[signal] + 1,
+    setPhaseIndex(nextPhaseIndex);
+    setCounts((prevCounts) => ({
+      ...prevCounts,
+      [signal]: (prevCounts[signal] ?? 0) + 1,
     }));
-  };
+  }, []);
 
-  const startAutomatic = () => {
+  const toggleOrientation = useCallback(() => {
+    setOrientation((prev) => (prev === "vertical" ? "horizontal" : "vertical"));
+  }, []);
+
+  const startAutomatic = useCallback(() => {
     setIsAutomatic(true);
-  };
+  }, []);
 
-  const stopAutomatic = () => {
+  const stopAutomatic = useCallback(() => {
     setIsAutomatic(false);
-  };
+  }, []);
 
-  const toggleOrientation = () => {
-    setOrientation((previous) =>
-      previous === "vertical" ? "horizontal" : "vertical",
-    );
-  };
+  const saveCurrentSignal = useCallback(async () => {
+    setSaveStatus("loading");
+    setSaveError("");
+
+    try {
+      const updated = await updateTrafficLightState("main", currentSignal);
+      setServerTrafficLights((prev) => {
+        const hasMain = prev.some((item) => item.id === updated.id);
+        if (hasMain) {
+          return prev.map((item) => (item.id === updated.id ? updated : item));
+        }
+        return [...prev, updated];
+      });
+      setSaveStatus("success");
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Не вдалося зберегти поточний сигнал на сервері."
+      );
+    }
+  }, [currentSignal]);
 
   const value = {
     phaseIndex,
@@ -62,10 +138,18 @@ export function TrafficLightsProvider({ children }) {
     totalClicks,
     orientation,
     isAutomatic,
+    serverTrafficLights,
+    savedServerSignal,
+    loadStatus,
+    loadError,
+    saveStatus,
+    saveError,
     selectSignal,
+    toggleOrientation,
     startAutomatic,
     stopAutomatic,
-    toggleOrientation,
+    reloadTrafficLights,
+    saveCurrentSignal,
   };
 
   return (
@@ -78,7 +162,7 @@ export function TrafficLightsProvider({ children }) {
 export function useTrafficLights() {
   const context = useContext(TrafficLightsContext);
   if (!context) {
-    throw new Error("useTrafficLights must be used within TrafficLightsProvider");
+    throw new Error("useTrafficLights must be used inside TrafficLightsProvider");
   }
   return context;
 }
