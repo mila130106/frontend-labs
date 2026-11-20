@@ -1,18 +1,28 @@
-import './Light.css';
+import "./Light.css";
 
-// Light не має власного стану: колір, active, disabled і callback приходять через props.
-function Light({ color, signal, active, disabled, onSelect }) {
+export default function Light({
+  color = "red",
+  signal,
+  active = false,
+  isActive = false,
+  isLit = false,
+  onClick,
+  onSelect,
+}) {
+  const lightSignal = signal ?? color;
+  const isLightOn = Boolean(active || isActive || isLit);
+
+  const handleClick = (event) => {
+    onClick?.(event);
+    onSelect?.(lightSignal);
+  };
+
   return (
     <button
       type="button"
-      className={`light ${active ? 'light--active' : 'light--inactive'}`}
-      style={{ color }}
-      aria-label={`Сигнал: ${signal}`}
-      aria-pressed={active}
-      disabled={disabled}
-      onClick={() => onSelect(signal)}
+      className={`light light--${color} ${isLightOn ? "light--active is-active active" : ""}`}
+      aria-pressed={isLightOn}
+      onClick={handleClick}
     />
   );
 }
-
-export default Light;

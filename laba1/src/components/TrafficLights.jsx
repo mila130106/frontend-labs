@@ -1,39 +1,33 @@
-import { useEffect, useState } from 'react';
-import Light from './Light';
-import StatsBar from './StatsBar';
-import './TrafficLights.css';
+import Light from "./Light";
+import "./TrafficLights.css";
 
-// Ідентифікатори сигналів для відображення; кольори беруться з props colors за індексом.
-const SIGNALS = ['red', 'yellow', 'green'];
-
-// Єдина модель циклу. yellow зустрічається двічі, тому зберігаємо позицію, а не колір.
-const CYCLE = ['red', 'yellow', 'green', 'yellow'];
-
-// Позиція в циклі для ручного вибору (yellow завжди відповідає першій позиції).
-const MANUAL_PHASE = { red: 0, yellow: 1, green: 2 };
-
-// Константа поза компонентом, тому не є реактивною залежністю ефекту.
-const PHASE_DURATION_MS = 2000;
+const SIGNALS = ["red", "yellow", "green"];
 
 export default function TrafficLights({
-  initialOrientation = 'vertical',
-  colors = ['red', 'yellow', 'green'],
+  currentSignal = "red",
+  orientation = "vertical",
+  colors = ["red", "yellow", "green"],
+  onSelectSignal,
 }) {
-  const [phaseIndex, setPhaseIndex] = useState(0);
-  const [counts, setCounts] = useState({ red: 0, yellow: 0, green: 0 });
-  const [orientation, setOrientation] = useState(initialOrientation);
-  const [isAutomatic, setIsAutomatic] = useState(false);
+  return (
+    <div className={`traffic-lights traffic-lights--${orientation}`}>
+      {SIGNALS.map((signal, index) => {
+        const isCurrent = currentSignal === signal;
+        const handleSelect = () => onSelectSignal?.(signal);
 
-  // Похідні значення: окремого useState для них немає.
-  const currentSignal = CYCLE[phaseIndex];
-  const totalClicks = counts.red + counts.yellow + counts.green;
-
-  // Ефект синхронізує браузерний таймер зі станом isAutomatic.
-  useEffect(() => {
-    if (!isAutomatic) {
-      return;
-    }
-
-    const timerId = setInterval(() => {
-      // Функціональна форма: ефекту не потрібен phaseIndex у залежностях.
-      setPhaseIndex((previous) =>
+        return (
+          <Light
+            key={signal}
+            color={colors[index] ?? signal}
+            signal={signal}
+            active={isCurrent}
+            isActive={isCurrent}
+            isLit={isCurrent}
+            onClick={handleSelect}
+            onSelect={handleSelect}
+          />
+        );
+      })}
+    </div>
+  );
+}

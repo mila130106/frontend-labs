@@ -1,31 +1,33 @@
 .light {
   width: 64px;
   height: 64px;
-  padding: 0;
-  border: none;
   border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 0;
   cursor: pointer;
-  /* currentColor = значення color, яке прийшло через props */
-  background-color: currentColor;
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease,
-    box-shadow 0.5s ease;
+  opacity: 0.35;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.light--red {
+  background-color: #ef4444;
+  color: #ef4444;
+}
+
+.light--yellow {
+  background-color: #eab308;
+  color: #eab308;
+}
+
+.light--green {
+  background-color: #22c55e;
+  color: #22c55e;
+}
+
+.light.is-active,
+.light.active,
 .light--active {
   opacity: 1;
-  transform: scale(1.1);
-  box-shadow: 0 0 24px currentColor, inset 0 -6px 10px rgba(0, 0, 0, 0.25);
-}
-
-.light--inactive {
-  opacity: 0.25;
-  transform: scale(1);
-  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.25);
-}
-
-/* Під час автоматичного режиму ручний вибір недоступний. */
-.light:disabled {
-  cursor: default;
+  transform: scale(1.05);
+  box-shadow: 0 0 18px currentColor;
 }

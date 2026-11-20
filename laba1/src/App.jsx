@@ -1,11 +1,20 @@
-import TrafficLights from './components/TrafficLights';
-import './App.css';
+import { Route, Routes } from "react-router";
+import AppLayout from "./layouts/AppLayout";
+import HomePage from "./pages/HomePage";
+import TrafficLightPage from "./pages/TrafficLightPage";
+import StatsPage from "./pages/StatsPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import "./App.css";
 
 export default function App() {
   return (
-    <div className="app">
-      <h1>Світлофор</h1>
-      <TrafficLights colors={['#ff3b30', '#ff9500', '#34c759']} />
-    </div>
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/traffic-light" element={<TrafficLightPage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
