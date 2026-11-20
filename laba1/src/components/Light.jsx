@@ -1,7 +1,7 @@
 import './Light.css';
 
-// Light не має власного стану: колір, ознака active і callback приходять через props.
-function Light({ color, signal, active, onSelect }) {
+// Light не має власного стану: колір, active, disabled і callback приходять через props.
+function Light({ color, signal, active, disabled, onSelect }) {
   return (
     <button
       type="button"
@@ -9,6 +9,7 @@ function Light({ color, signal, active, onSelect }) {
       style={{ color }}
       aria-label={`Сигнал: ${signal}`}
       aria-pressed={active}
+      disabled={disabled}
       onClick={() => onSelect(signal)}
     />
   );

@@ -7,15 +7,25 @@
   cursor: pointer;
   /* currentColor = значення color, яке прийшло через props */
   background-color: currentColor;
-  transition: opacity 0.2s, box-shadow 0.2s;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    box-shadow 0.5s ease;
 }
 
 .light--active {
   opacity: 1;
-  box-shadow: 0 0 18px currentColor, inset 0 -6px 10px rgba(0, 0, 0, 0.25);
+  transform: scale(1.1);
+  box-shadow: 0 0 24px currentColor, inset 0 -6px 10px rgba(0, 0, 0, 0.25);
 }
 
 .light--inactive {
   opacity: 0.25;
+  transform: scale(1);
   box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Під час автоматичного режиму ручний вибір недоступний. */
+.light:disabled {
+  cursor: default;
 }
